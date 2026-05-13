@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { sports, type Sport, type SportEvent } from './data';
-import { Calendar, AlertTriangle, Clock, Medal, CheckCircle2, Star, Trophy } from 'lucide-react';
+import { Calendar, AlertTriangle, Medal, CheckCircle2, Star, Trophy } from 'lucide-react';
 import './App.css';
 
 function App() {
