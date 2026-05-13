@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: sports-calendar-jcc2026
+    env: static
+    rootDir: sports-calendar
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
