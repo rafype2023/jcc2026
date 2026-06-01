@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { sports, type Sport, type SportEvent } from './data';
-import { Calendar, AlertTriangle, Medal, CheckCircle2, Star, Trophy } from 'lucide-react';
+import { Calendar, AlertTriangle, Medal, CheckCircle2, Star, Trophy, Download } from 'lucide-react';
 import './App.css';
 
 function App() {
@@ -58,6 +58,91 @@ function App() {
     const options: Intl.DateTimeFormatOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
     const d = new Date(dateString + 'T12:00:00Z');
     return d.toLocaleDateString('es-PR', options);
+  };
+
+  // Generate and download an iCalendar (.ics) file for the selected sports
+  const exportToICS = () => {
+    if (selectedSports.length === 0) return;
+
+    // Current timestamp for DTSTAMP (format: YYYYMMDDTHHMMSSZ)
+    const now = new Date();
+    const dtstamp = now.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+
+    const icsEvents: string[] = [];
+
+    selectedSports.forEach(sport => {
+      sport.events.forEach(event => {
+        const dateFormatted = event.date.replace(/-/g, '');
+        const timeFormatted = event.time.replace(/:/g, '');
+        
+        // Parse start date-time using local time zones
+        const [year, month, day] = event.date.split('-').map(Number);
+        const [hour, min] = event.time.split(':').map(Number);
+        const startDt = new Date(year, month - 1, day, hour, min);
+        const endDt = new Date(startDt.getTime() + event.durationMinutes * 60 * 1000);
+
+        // Format to floating local time (no 'Z' suffix) to prevent tz shift issues on iPhone
+        const formatICSDate = (d: Date) => {
+          const pad = (n: number) => n.toString().padStart(2, '0');
+          return `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}T${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}`;
+        };
+
+        const dtstart = formatICSDate(startDt);
+        const dtend = formatICSDate(endDt);
+
+        const prefix = event.type === 'medalla' ? '🏆' : '🏃';
+        const typeLabel = event.type === 'medalla' ? 'Día de Medallas' : 'Competencia';
+        const summary = `${prefix} ${sport.name} - ${typeLabel}`;
+
+        const descriptionLines = [
+          `Deporte: ${sport.name}`,
+          `Tipo de Evento: ${typeLabel}`,
+          `Duración estimada: ${event.durationMinutes} minutos`
+        ];
+        if (sport.prAthletes.length > 0) {
+          descriptionLines.push(`Atletas de Puerto Rico: ${sport.prAthletes.join(', ')}`);
+        }
+        const description = descriptionLines.join('\\n');
+
+        const uid = `jcc2026-sport-${sport.id}-${dateFormatted}T${timeFormatted}00@jcc2026.com`;
+
+        const vevent = [
+          'BEGIN:VEVENT',
+          `UID:${uid}`,
+          `DTSTAMP:${dtstamp}`,
+          `DTSTART:${dtstart}`,
+          `DTEND:${dtend}`,
+          `SUMMARY:${summary}`,
+          `DESCRIPTION:${description}`,
+          'STATUS:CONFIRMED',
+          'SEQUENCE:0',
+          'END:VEVENT'
+        ].join('\r\n');
+
+        icsEvents.push(vevent);
+      });
+    });
+
+    const icsContent = [
+      'BEGIN:VCALENDAR',
+      'VERSION:2.0',
+      'PRODID:-//Antigravity//JCC2026 Sports Calendar//ES',
+      'CALSCALE:GREGORIAN',
+      'METHOD:PUBLISH',
+      `X-WR-CALNAME:JCC 2026 - ${selectedSports.length} Deportes`,
+      icsEvents.join('\r\n'),
+      'END:VCALENDAR'
+    ].join('\r\n');
+
+    const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `calendario_jcc2026_seleccionados.ics`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
   return (
@@ -124,6 +209,30 @@ function App() {
             <h2 className="section-title">
               <Calendar className="icon" /> Tu Itinerario
             </h2>
+
+            <div className="calendar-actions">
+              <div className="actions-header">
+                <h3>Sincronizar con iPhone y Calendarios</h3>
+                <p>Descarga tus eventos favoritos en formato iCalendar (.ics) e impórtalos fácilmente en Apple Calendar, Google Calendar u Outlook.</p>
+              </div>
+              <div className="actions-buttons">
+                <button 
+                  onClick={exportToICS} 
+                  disabled={selectedSports.length === 0}
+                  className="btn btn-primary"
+                  title={selectedSports.length === 0 ? "Selecciona deportes para exportar tu itinerario personalizado" : "Exportar itinerario seleccionado"}
+                >
+                  <Download size={16} /> Exportar Selección ({selectedSports.length})
+                </button>
+                <a 
+                  href="/calendario_jcc2026_completo.ics" 
+                  download="calendario_jcc2026_completo.ics"
+                  className="btn btn-secondary"
+                >
+                  <Download size={16} /> Descargar Completo (66 Deportes)
+                </a>
+              </div>
+            </div>
 
             {conflicts.length > 0 && (
               <div className="conflict-alert">
