@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { sports, type Sport, type SportEvent } from './data';
-import { Calendar, AlertTriangle, Medal, CheckCircle2, Star, Trophy, Download } from 'lucide-react';
+import { Calendar, AlertTriangle, Medal, CheckCircle2, Star, Trophy, Download, Printer } from 'lucide-react';
 import './App.css';
 
 function App() {
@@ -206,6 +206,11 @@ function App() {
 
         <section className="calendar-section">
           <div className="calendar-view">
+            <div className="print-header">
+              <h1>Mi Itinerario Deportivo - JCC 2026</h1>
+              <p>Deportes seleccionados: {selectedSports.map(s => s.name).join(', ')}</p>
+            </div>
+
             <h2 className="section-title">
               <Calendar className="icon" /> Tu Itinerario
             </h2>
@@ -213,7 +218,7 @@ function App() {
             <div className="calendar-actions">
               <div className="actions-header">
                 <h3>Sincronizar con iPhone y Calendarios</h3>
-                <p>Descarga tus eventos favoritos en formato iCalendar (.ics) e impórtalos fácilmente en Apple Calendar, Google Calendar u Outlook.</p>
+                <p>Descarga tus eventos favoritos en formato iCalendar (.ics) o exporta tu itinerario y conflictos a un PDF imprimible.</p>
               </div>
               <div className="actions-buttons">
                 <button 
@@ -223,6 +228,14 @@ function App() {
                   title={selectedSports.length === 0 ? "Selecciona deportes para exportar tu itinerario personalizado" : "Exportar itinerario seleccionado"}
                 >
                   <Download size={16} /> Exportar Selección ({selectedSports.length})
+                </button>
+                <button
+                  onClick={() => window.print()}
+                  disabled={selectedSports.length === 0}
+                  className="btn btn-accent"
+                  title={selectedSports.length === 0 ? "Selecciona deportes para imprimir o guardar en PDF" : "Imprimir o guardar itinerario en PDF"}
+                >
+                  <Printer size={16} /> Guardar en PDF
                 </button>
                 <a 
                   href="/calendario_jcc2026_completo.ics" 

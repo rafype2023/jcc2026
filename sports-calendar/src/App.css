@@ -348,3 +348,133 @@
   box-shadow: none;
   transform: none !important;
 }
+
+.btn-accent {
+  background: linear-gradient(135deg, var(--accent) 0%, #dc2626 100%);
+  color: var(--accent-foreground);
+  border: none;
+  box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3);
+}
+
+.btn-accent:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(239, 68, 68, 0.4);
+  background: linear-gradient(135deg, #f87171 0%, #b91c1c 100%);
+}
+
+.btn-accent:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+/* Print Specifics */
+.print-header {
+  display: none;
+}
+
+@media print {
+  body {
+    background-color: #ffffff !important;
+    color: #0f172a !important;
+  }
+
+  .app-container {
+    min-height: auto;
+    padding: 0;
+  }
+
+  /* Hide screen-only items */
+  .header,
+  .header-glow,
+  .selection-section,
+  .calendar-actions {
+    display: none !important;
+  }
+
+  /* Expand calendar section to full width */
+  .main-content {
+    display: block;
+    padding: 0;
+    max-width: 100%;
+    margin: 0;
+  }
+
+  .calendar-section {
+    width: 100% !important;
+  }
+
+  .calendar-view {
+    box-shadow: none !important;
+    padding: 0 !important;
+    background: transparent !important;
+    animation: none !important;
+  }
+
+  .print-header {
+    display: block !important;
+    text-align: center;
+    margin-bottom: 2rem;
+    border-bottom: 2px solid #0f172a;
+    padding-bottom: 1rem;
+  }
+
+  .print-header h1 {
+    font-size: 2.25rem;
+    font-weight: 800;
+    color: #0f172a;
+    margin-bottom: 0.5rem;
+  }
+
+  .print-header p {
+    font-size: 0.95rem;
+    color: #475569;
+  }
+
+  /* Prevent page-breaks in the middle of elements */
+  .conflict-alert,
+  .timeline-day,
+  .timeline-event {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  .timeline-day {
+    border: 1px solid #cbd5e1;
+    background: #ffffff !important;
+    margin-bottom: 1.5rem;
+    padding: 1.25rem;
+    border-radius: var(--radius-md);
+  }
+
+  .timeline-date {
+    border-bottom: 2px solid #0f172a;
+    color: #0f172a;
+  }
+
+  .timeline-event {
+    border: 1px solid #e2e8f0;
+    border-left: 5px solid #3b82f6;
+    background: #f8fafc !important;
+    box-shadow: none !important;
+  }
+
+  .timeline-event.medal-event {
+    border-left-color: #f59e0b;
+    background: #fef3c7 !important;
+  }
+
+  .event-time {
+    color: #2563eb !important;
+  }
+
+  .medal-badge {
+    background: #fef3c7 !important;
+    border: 1px solid #f59e0b !important;
+    color: #b45309 !important;
+  }
+
+  .pr-badge {
+    background: #fef2f2 !important;
+    border: 1px solid #fca5a5 !important;
+    color: #dc2626 !important;
+  }
+}
